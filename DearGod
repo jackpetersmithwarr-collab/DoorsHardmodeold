@@ -63,7 +63,9 @@ local entity = Spawner:Create({
 entity:SetCallback("OnSpawned", function()
     print("Entity has spawned")
     require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).caption("RUN ITS COMING",true)
-    local function getGitSoundId(GithubSoundPath: string, AssetName: string): Sound
+    local CustomMusic: Sound? = nil 
+
+local function getGitSoundId(GithubSoundPath: string, AssetName: string): Sound
     local Url = GithubSoundPath
 
     if not isfile(AssetName..".mp3") then 
@@ -75,10 +77,17 @@ entity:SetCallback("OnSpawned", function()
     return Sound 
 end
 
-local CustomMusic = getGitSoundId("https://raw.githubusercontent.com/jackpetersmithwarr-collab/sounds/main/1-16.%20Your%20Consenting%20Mind%20(Clean).mp3", "thedeeriscoming")
+CustomMusic = getGitSoundId("https://raw.githubusercontent.com/jackpetersmithwarr-collab/sounds/main/1-16.%20Your%20Consenting%20Mind%20(Clean).mp3", "thedeeriscoming")
 CustomMusic.Parent = game.SoundService
 CustomMusic.Looped = true
 CustomMusic:Play()
+
+local function OnDespawned()
+    if CustomMusic then
+        CustomMusic:Destroy()
+        CustomMusic = nil
+    end
+end
 end)
 
 entity:SetCallback("OnStartMoving", function()
@@ -115,9 +124,6 @@ end)
 
 entity:SetCallback("OnDespawned", function()
     print("Entity has despawned")
-    if CustomMusic then
-    CustomMusic:Destroy()
-end
 end)
 
 entity:SetCallback("OnDamagePlayer", function(newHealth: number)
