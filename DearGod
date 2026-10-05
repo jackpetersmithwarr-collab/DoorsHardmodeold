@@ -88,7 +88,6 @@ local function OnDespawned()
         CustomMusic = nil
     end
 end
-end)
 
 entity:SetCallback("OnStartMoving", function()
     print("Entity has started moving")
