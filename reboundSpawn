@@ -29,7 +29,7 @@ for doorCount = 1, 3 do
 		Movement = {
 			Speed = 140,
 			Delay = 4,
-			Reversed = true
+			Reversed = false
 		},
 		Rebounding = {
 			Enabled = false,
@@ -60,79 +60,82 @@ for doorCount = 1, 3 do
 
 	entity:SetCallback("OnSpawned", function()
 		print("Entity has spawned")
-local Lighting = game:GetService("Lighting")
-local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
-local TweenService = game:GetService("TweenService")
-local SoundService = game:GetService("SoundService")
+		local Lighting = game:GetService("Lighting")
+		local RunService = game:GetService("RunService")
+		local Workspace = game:GetService("Workspace")
+		local TweenService = game:GetService("TweenService")
+		local SoundService = game:GetService("SoundService")
 
-local camera = Workspace.CurrentCamera
+		local camera = Workspace.CurrentCamera
 
-local colorCorrection = Instance.new("ColorCorrectionEffect")
-colorCorrection.Name = "NauseaColorEffect"
-colorCorrection.TintColor = Color3.fromRGB(40, 110, 255)
-colorCorrection.Brightness = -0.2
-colorCorrection.Contrast = 0.3
-colorCorrection.Parent = Lighting
+		local colorCorrection = Instance.new("ColorCorrectionEffect")
+		colorCorrection.Name = "NauseaColorEffect"
+		colorCorrection.TintColor = Color3.fromRGB(40, 110, 255)
+		colorCorrection.Brightness = -0.2
+		colorCorrection.Contrast = 0.3
+		colorCorrection.Parent = Lighting
 
-local sound1 = Instance.new("Sound")
-sound1.SoundId = "rbxassetid://6734393210"
-sound1.Parent = SoundService
+		local sound1 = Instance.new("Sound")
+		sound1.SoundId = "rbxassetid://6734393210"
+		sound1.Parent = SoundService
 
-local sound2 = Instance.new("Sound")
-sound2.SoundId = "rbxassetid://9043335396"
-sound2.PlaybackSpeed = 0.8
-sound2.Parent = SoundService
+		local sound2 = Instance.new("Sound")
+		sound2.SoundId = "rbxassetid://9043335396"
+		sound2.PlaybackSpeed = 0.8
+		sound2.Parent = SoundService
 
-local sound3 = Instance.new("Sound")
-sound3.SoundId = "rbxassetid://5246103002"
-sound3.Parent = SoundService
+		local sound3 = Instance.new("Sound")
+		sound3.SoundId = "rbxassetid://5246103002"
+		sound3.Parent = SoundService
 
-local pitchShift = Instance.new("PitchShiftSoundEffect")
-pitchShift.Octave = 0.5
-pitchShift.Parent = sound3
+		local pitchShift = Instance.new("PitchShiftSoundEffect")
+		pitchShift.Octave = 0.5
+		pitchShift.Parent = sound3
 
-sound1:Play()
-sound2:Play()
-sound3:Play()
+		sound1:Play()
+		sound2:Play()
+		sound3:Play()
 
-local SWAY_SPEED = 2.5
-local CURRENT_INTENSITY = 0.04
-local FADE_DURATION = 4.5
+		local SWAY_SPEED = 2.5
+		local CURRENT_INTENSITY = 0.04
+		local FADE_DURATION = 4.5
 
-local intensityValue = Instance.new("NumberValue")
-intensityValue.Value = CURRENT_INTENSITY
-intensityValue.Parent = script
+		local intensityValue = Instance.new("NumberValue")
+		intensityValue.Value = CURRENT_INTENSITY
+		intensityValue.Parent = Workspace
 
-local tweenInfo = TweenInfo.new(FADE_DURATION, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-local colorTween = TweenService:Create(colorCorrection, tweenInfo, {
-	TintColor = Color3.fromRGB(255, 255, 255),
-	Brightness = 0,
-	Contrast = 0
-})
-local shakeTween = TweenService:Create(intensityValue, tweenInfo, {Value = 0})
+		local tweenInfo = TweenInfo.new(FADE_DURATION, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+		local colorTween = TweenService:Create(colorCorrection, tweenInfo, {
+			TintColor = Color3.fromRGB(255, 255, 255),
+			Brightness = 0,
+			Contrast = 0
+		})
+		local shakeTween = TweenService:Create(intensityValue, tweenInfo, {Value = 0})
 
-colorTween:Play()
-shakeTween:Play()
+		colorTween:Play()
+		shakeTween:Play()
 
-colorTween.Completed:Connect(function()
-	colorCorrection:Destroy()
-	RunService:UnbindFromRenderStep("NauseaCameraShake")
-	intensityValue:Destroy()
-end)
+		colorTween.Completed:Connect(function()
+			colorCorrection:Destroy()
+			RunService:UnbindFromRenderStep("NauseaCameraShake")
+			intensityValue:Destroy()
+			sound1:Destroy()
+			sound2:Destroy()
+			sound3:Destroy()
+		end)
 
-RunService:BindToRenderStep("NauseaCameraShake", Enum.RenderPriority.Camera.Value + 1, function()
-	if not camera or intensityValue.Value <= 0 then return end
-	
-	local timeClock = os.clock()
-	local currentIntensity = intensityValue.Value
-	
-	local roll = math.sin(timeClock * SWAY_SPEED) * currentIntensity
-	local pitch = math.cos(timeClock * (SWAY_SPEED * 0.8)) * (currentIntensity * 0.5)
-	local yaw = math.sin(timeClock * (SWAY_SPEED * 0.5)) * (currentIntensity * 0.5)
-	
-	camera.CFrame = camera.CFrame * CFrame.Angles(pitch, yaw, roll)
-end)
+		RunService:BindToRenderStep("NauseaCameraShake", Enum.RenderPriority.Camera.Value + 1, function()
+			if not camera or not intensityValue or intensityValue.Value <= 0 then return end
+			
+			local timeClock = os.clock()
+			local currentIntensity = intensityValue.Value
+			
+			local roll = math.sin(timeClock * SWAY_SPEED) * currentIntensity
+			local pitch = math.cos(timeClock * (SWAY_SPEED * 0.8)) * (currentIntensity * 0.5)
+			local yaw = math.sin(timeClock * (SWAY_SPEED * 0.5)) * (currentIntensity * 0.5)
+			
+			camera.CFrame = camera.CFrame * CFrame.Angles(pitch, yaw, roll)
+		end)
 	end)
 
 	entity:SetCallback("OnStartMoving", function()
@@ -174,6 +177,83 @@ end)
 	entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 		if newHealth <= 0 then
 			print("Entity has killed the player")
+			
+			local Players = game:GetService("Players")
+			local TweenService = game:GetService("TweenService")
+			local SoundService = game:GetService("SoundService")
+			local localPlayer = Players.LocalPlayer
+			
+			if localPlayer and localPlayer:FindFirstChild("PlayerGui") then
+				local screenGui = Instance.new("ScreenGui")
+				screenGui.Name = "CustomJumpscareGui"
+				screenGui.IgnoreGuiInset = true
+				screenGui.Parent = localPlayer.PlayerGui
+				
+				-- Full-screen background layout using your target backdrop asset
+				local backgroundImage = Instance.new("ImageLabel")
+				backgroundImage.Name = "JumpscareBackground"
+				backgroundImage.Image = "rbxassetid://73611379034304" 
+				backgroundImage.Size = UDim2.new(1, 0, 1, 0)
+				backgroundImage.Position = UDim2.new(0, 0, 0, 0)
+				backgroundImage.BackgroundTransparency = 1
+				backgroundImage.ImageTransparency = 0
+				backgroundImage.Parent = screenGui
+
+				local imageLabel = Instance.new("ImageLabel")
+				imageLabel.Name = "JumpscareImage"
+				imageLabel.Image = "rbxassetid://134220823106418" 
+				imageLabel.BackgroundTransparency = 1
+				imageLabel.ImageTransparency = 0
+				imageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+				imageLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
+				imageLabel.Size = UDim2.new(0.2, 0, 0.2, 0) 
+				imageLabel.ZIndex = 2
+				imageLabel.Parent = screenGui
+				
+				local scareSound = Instance.new("Sound")
+				scareSound.SoundId = "rbxassetid://139694892021582"
+				scareSound.Parent = SoundService
+				
+				-- Audio Effects Stacking
+				local pitch1 = Instance.new("PitchShiftSoundEffect")
+				pitch1.Octave = 1.25
+				pitch1.Parent = scareSound
+				
+				local pitch2 = Instance.new("PitchShiftSoundEffect")
+				pitch2.Octave = 2.0
+				pitch2.Parent = scareSound
+
+				local chorus = Instance.new("ChorusSoundEffect")
+				chorus.Mix = 0.7 -- Controls how loud the chorus copies sound
+				chorus.Depth = 0.4 -- Intensity of the pitch modulation
+				chorus.Rate = 3.5 -- Speed of the chorus wobble effect
+				chorus.Parent = scareSound
+				
+				scareSound:Play()
+				
+				-- Fast Zoom-in Animation
+				local zoomTweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+				local zoomTween = TweenService:Create(imageLabel, zoomTweenInfo, {
+					Size = UDim2.new(1.2, 0, 1.2, 0)
+				})
+				zoomTween:Play()
+				
+				-- Smooth Fade Out Transition Sequence
+				zoomTween.Completed:Connect(function()
+					local fadeTweenInfo = TweenInfo.new(2.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+					
+					local fadeFace = TweenService:Create(imageLabel, fadeTweenInfo, {ImageTransparency = 1})
+					local fadeBack = TweenService:Create(backgroundImage, fadeTweenInfo, {ImageTransparency = 1})
+					
+					fadeFace:Play()
+					fadeBack:Play()
+				end)
+				
+				task.delay(4, function()
+					screenGui:Destroy()
+					scareSound:Destroy()
+				end)
+			end
 		else
 			print("Entity has damaged the player")
 		end
