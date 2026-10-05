@@ -1,0 +1,252 @@
+local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local localPlayer = Players.LocalPlayer
+
+local entity = Spawner:Create({
+	Entity = {
+		Name = "Ripper",
+		Asset = "rbxassetid://115607211595989",
+		HeightOffset = 0
+	},
+	Lights = {
+		Flicker = {
+			Enabled = false,
+			Duration = 1
+		},
+		Shatter = false,
+		Repair = false
+	},
+	Earthquake = {
+		Enabled = false
+	},
+	CameraShake = {
+		Enabled = true,
+		Range = 100,
+		Values = {20, 30, 0.1, 1}
+	},
+	Movement = {
+		Speed = 200,
+		Delay = 3,
+		Reversed = false
+	},
+	Rebounding = {
+		Enabled = false,
+		Type = "Ambush",
+		Min = 1,
+		Max = 1,
+		Delay = 2
+	},
+	Damage = {
+		Enabled = true,
+		IgnoreHiding = false,
+		Range = 50,
+		Amount = 125
+	},
+	Crucifixion = {
+        Type = "Guiding",
+		Enabled = true,
+		Range = 40,
+		Resist = false,
+		Break = true
+	},
+	Death = {
+		Type = "Guiding",
+		Hints = {"You die to ripper", "When lights turn red you hide ", "And don’t leave too early", "Bye"},
+		Cause = "Ripper"
+	}
+})
+
+entity.SetCallback(entity, "OnDamagePlayer", function(newHealth: number)
+    if newHealth <= 0 then
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+
+local camera = Workspace.CurrentCamera
+local player = Players.LocalPlayer
+
+-- Wait for the character and its HumanoidRootPart to fully exist
+local character = player.Character or player.CharacterAdded:Wait()
+local rootPart = character:WaitForChild("HumanoidRootPart")
+
+-- 1. LOCK CAMERA AND PLAYER ABSOLUTELY
+camera.CameraType = Enum.CameraType.Scriptable
+rootPart.Anchored = true
+
+-- Save the exact position and orientation of the camera right now
+local lockedCFrame = camera.CFrame
+
+-- Force-override the camera every single frame so nothing else can move it
+RunService:BindToRenderStep("AbsoluteCameraLock", Enum.RenderPriority.Camera.Value + 1, function()
+	camera.CFrame = lockedCFrame
+end)
+
+-- Hold everything perfectly frozen for exactly 1.2 seconds
+task.wait(1.2) 
+
+-- Break the loop and restore control
+RunService:UnbindFromRenderStep("AbsoluteCameraLock")
+camera.CameraType = Enum.CameraType.Custom 
+rootPart.Anchored = false 
+
+-- 2. CREATE THE STATIC IMAGE & AUDIO
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FadeImageGui"
+screenGui.IgnoreGuiInset = true 
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local imageLabel = Instance.new("ImageLabel")
+imageLabel.Name = "FadeImage"
+imageLabel.Size = UDim2.new(1, 0, 1, 0) 
+imageLabel.Position = UDim2.new(0, 0, 0, 0)
+imageLabel.BackgroundTransparency = 1 
+imageLabel.ImageTransparency = 1 
+imageLabel.Image = "rbxthumb://type=Asset&id=184251463&w=768&h=432" 
+imageLabel.Parent = screenGui
+
+local sound = Instance.new("Sound")
+sound.Name = "FadeSound"
+sound.SoundId = "rbxassetid://81486637394198"
+sound.Volume = 20 
+sound.Parent = screenGui 
+
+-- 3. FADE IN
+local fadeInDuration = 2 
+local fadeInInfo = TweenInfo.new(fadeInDuration, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+
+local fadeInTween = TweenService:Create(imageLabel, fadeInInfo, {ImageTransparency = 0})
+fadeInTween:Play()
+sound:Play() 
+
+fadeInTween.Completed:Wait()
+
+-- 4. THE HOLD DELAY (3 full seconds)
+task.wait(3) 
+
+-- 5. FADE OUT
+local fadeOutDuration = 2 
+local fadeOutInfo = TweenInfo.new(fadeOutDuration, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+
+local imageFadeOut = TweenService:Create(imageLabel, fadeOutInfo, {ImageTransparency = 1})
+local soundFadeOut = TweenService:Create(sound, fadeOutInfo, {Volume = 0}) 
+
+imageFadeOut:Play()
+soundFadeOut:Play()
+
+-- 6. CLEANUP
+imageFadeOut.Completed:Connect(function()
+	screenGui:Destroy()
+end)
+
+        local playerGui = localPlayer:WaitForChild("PlayerGui")
+        local workingSoundId = "rbxassetid://9069609268"   
+        local workingImageId = "rbxassetid://10732152277"  
+
+        if playerGui:FindFirstChild("ExploitDeathGui") then
+            playerGui.ExploitDeathGui:Destroy()
+        end
+
+        local screenGui = Instance.new("ScreenGui")
+        screenGui.Name = "ExploitDeathGui"
+        screenGui.IgnoreGuiInset = true
+        screenGui.ResetOnSpawn = false
+
+        local fullscreenImage = Instance.new("ImageLabel")
+        fullscreenImage.Name = "FullscreenImage"
+        fullscreenImage.Size = UDim2.new(1, 0, 1, 0)
+        fullscreenImage.Position = UDim2.new(0, 0, 0, 0)
+        fullscreenImage.BackgroundTransparency = 1
+        fullscreenImage.Image = workingImageId
+        fullscreenImage.ImageTransparency = 0 
+        fullscreenImage.ScaleType = Enum.ScaleType.Crop
+        fullscreenImage.Parent = screenGui 
+
+        local staticSound = Instance.new("Sound")
+        staticSound.Name = "JumpscareAudio"
+        staticSound.SoundId = workingSoundId
+        staticSound.Volume = 3 
+        staticSound.Parent = screenGui 
+
+        screenGui.Parent = playerGui
+        staticSound:Play()
+        
+        task.delay(2, function()
+            local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+            local fadeTween = TweenService:Create(fullscreenImage, tweenInfo, {ImageTransparency = 1})
+            fadeTween:Play()
+            
+            fadeTween.Completed:Connect(function()
+                screenGui:Destroy()
+            end)
+        end)
+    end
+end)
+
+entity:SetCallback("OnSpawned", function()
+    print("Entity has spawned")
+
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://9125713501"
+    sound.PlaybackSpeed = 0.7
+    sound.Parent = workspace
+
+    local pitchEffect = Instance.new("PitchShiftSoundEffect")
+    pitchEffect.Octave = 0.7
+    pitchEffect.Parent = sound
+
+    sound:Play()
+
+	local Lighting = game:GetService("Lighting")
+	local Debris = game:GetService("Debris")
+
+	local colorCorrection = Instance.new("ColorCorrectionEffect")
+	colorCorrection.TintColor = Color3.fromRGB(255, 0, 0)
+	colorCorrection.Saturation = 0.5
+	colorCorrection.Contrast = 0.4
+	colorCorrection.Parent = Lighting
+
+	Debris:AddItem(colorCorrection, 18)
+end)
+
+entity:SetCallback("OnStartMoving", function()
+    print("Entity has started moving")
+end)
+
+entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
+    if firstTime == true then
+        print("Entity has entered room: ".. room.Name.. " for the first time")
+    else
+        print("Entity has entered room: ".. room.Name.. " again")
+    end
+end)
+
+entity:SetCallback("OnLookAt", function(lineOfSight: boolean)
+	if lineOfSight == true then
+		print("Player is looking at entity")
+	else
+		print("Player view is obstructed by something")
+	end
+end)
+
+entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
+    if startOfRebound == true then
+        print("Entity has started rebounding")
+	else
+        print("Entity has finished rebounding")
+	end
+end)
+
+entity:SetCallback("OnDespawning", function()
+    print("Entity is despawning")
+	task.wait(3)
+end)
+
+entity:SetCallback("OnDespawned", function()
+    print("Entity has spawned")
+end)
+
+entity:Run(true)
