@@ -1,3 +1,21 @@
+local CustomMusic: Sound? = nil
+
+local function getGitSoundId(GithubSoundPath: string, AssetName: string): Sound
+    local Url = GithubSoundPath
+
+    if not isfile(AssetName..".mp3") then 
+        writefile(AssetName..".mp3", game:HttpGet(Url)) 
+    end
+
+    local Sound = Instance.new("Sound")
+    Sound.SoundId = getcustomasset(AssetName..".mp3", true)
+    return Sound 
+end
+
+CustomMusic = getGitSoundId("https://githubusercontent.com", "thedeeriscoming")
+CustomMusic.Parent = game.SoundService
+CustomMusic.Looped = true
+
 ---====== Load spawner ======---
 
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
@@ -63,31 +81,11 @@ local entity = Spawner:Create({
 entity:SetCallback("OnSpawned", function()
     print("Entity has spawned")
     require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).caption("RUN ITS COMING",true)
-    local CustomMusic: Sound? = nil 
-
-local function getGitSoundId(GithubSoundPath: string, AssetName: string): Sound
-    local Url = GithubSoundPath
-
-    if not isfile(AssetName..".mp3") then 
-        writefile(AssetName..".mp3", game:HttpGet(Url)) 
-    end
-
-    local Sound = Instance.new("Sound")
-    Sound.SoundId = getcustomasset(AssetName..".mp3", true)
-    return Sound 
+if CustomMusic then
+    CustomMusic.TimePosition = 0
+    CustomMusic:Play()
 end
-
-CustomMusic = getGitSoundId("https://raw.githubusercontent.com/jackpetersmithwarr-collab/sounds/main/1-16.%20Your%20Consenting%20Mind%20(Clean).mp3", "thedeeriscoming")
-CustomMusic.Parent = game.SoundService
-CustomMusic.Looped = true
-CustomMusic:Play()
-
-local function OnDespawned()
-    if CustomMusic then
-        CustomMusic:Destroy()
-        CustomMusic = nil
-    end
-end
+    end)
 
 entity:SetCallback("OnStartMoving", function()
     print("Entity has started moving")
@@ -123,6 +121,10 @@ end)
 
 entity:SetCallback("OnDespawned", function()
     print("Entity has despawned")
+if CustomMusic then
+    CustomMusic:Stop()
+    CustomMusic.TimePosition = 0
+end
 end)
 
 entity:SetCallback("OnDamagePlayer", function(newHealth: number)
