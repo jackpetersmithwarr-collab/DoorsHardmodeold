@@ -1,247 +1,187 @@
-local ReboundClone = local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
-
----====== Create entity ======---
-
-local entity = Spawner:Create({
-	Entity = {
-		Name = "Template Entity",
-		Asset = "https://github.com/RegularVynixu/DOORS-Entity-Spawner-V2/raw/main/Assets/Entities/Rush.rbxm",
-		HeightOffset = 0
-	},
-	Lights = {
-		Flicker = {
-			Enabled = true,
-			Duration = 1
-		},
-		Shatter = true,
-		Repair = false
-	},
-	Earthquake = {
-		Enabled = true
-	},
-	CameraShake = {
-		Enabled = true,
-		Range = 100,
-		Values = {1.5, 20, 0.1, 1} -- Magnitude, Roughness, FadeIn, FadeOut
-	},
-	Movement = {
-		Speed = 100,
-		Delay = 2,
-		Reversed = false
-	},
-	Rebounding = {
-		Enabled = true,
-		Type = "Ambush", -- "Blitz"
-		Min = 1,
-		Max = 1,
-		Delay = 2
-	},
-	Damage = {
-		Enabled = true,
-		IgnoreHiding = false,
-		Range = 40,
-		Amount = 125
-	},
-	Crucifixion = {
-        Type = "Guiding",
-		Enabled = true,
-		Range = 40,
-		Resist = false,
-		Break = true
-	},
-	Death = {
-		Type = "Guiding", -- "Curious"
-		Hints = {"Death", "Hints", "Go", "Here"},
-		Cause = ""
-	}
-})
-
----====== Debug entity ======---
-
-entity:SetCallback("OnSpawned", function()
-    print("Entity has spawned")
-end)
-
-entity:SetCallback("OnStartMoving", function()
-    print("Entity has started moving")
-end)
-
-entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
-    if firstTime == true then
-        print("Entity has entered room: ".. room.Name.. " for the first time")
-    else
-        print("Entity has entered room: ".. room.Name.. " again")
-    end
-end)
-
-entity:SetCallback("OnLookAt", function(lineOfSight: boolean)
-	if lineOfSight == true then
-		print("Player is looking at entity")
-	else
-		print("Player view is obstructed by something")
-	end
-end)
-
-entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
-    if startOfRebound == true then
-        print("Entity has started rebounding")
-	else
-        print("Entity has finished rebounding")
-	end
-end)
-
-entity:SetCallback("OnDespawning", function()
-    print("Entity is despawning")
-end)
-
-entity:SetCallback("OnDespawned", function()
-    print("Entity has despawned")
-end)
-
-entity:SetCallback("OnDamagePlayer", function(newHealth: number)
-	if newHealth <= 0 then
-		print("Entity has killed the player")
-	else
-		print("Entity has damaged the player")
-	end
-end)
-
---[[
-
-DEVELOPER NOTE:
-By overwriting 'CrucifixionOverwrite' the default crucifixion callback will be replaced with your custom callback.
-
-entity:SetCallback("CrucifixionOverwrite", function()
-    print("Custom crucifixion callback")
-end)
-
-]]--
-
----====== Run entity ======---
-
-entity:Run(true) 
-
----====== Load spawner ======---
-
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
 
----====== Create entity ======---
+game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
 
-local entity = Spawner:Create({
-	Entity = {
-		Name = "Rebound",
-		Asset = "rbxassetid://82116817846987",
-		HeightOffset = 0
-	},
-	Lights = {
-		Flicker = {
-			Enabled = true,
-			Duration = 1
+for doorCount = 1, 3 do
+
+	local entity = Spawner:Create({
+		Entity = {
+			Name = "Rebound",
+			Asset = "rbxassetid://82116817846987",
+			HeightOffset = 0
 		},
-		Shatter = true,
-		Repair = false
-	},
-	Earthquake = {
-		Enabled = true
-	},
-	CameraShake = {
-		Enabled = true,
-		Range = 100,
-		Values = {1.5, 20, 0.1, 1} -- Magnitude, Roughness, FadeIn, FadeOut
-	},
-	Movement = {
-		Speed = 100,
-		Delay = 2,
-		Reversed = false
-	},
-	Rebounding = {
-		Enabled = true,
-		Type = "Ambush", -- "Blitz"
-		Min = 1,
-		Max = 1,
-		Delay = 2
-	},
-	Damage = {
-		Enabled = true,
-		IgnoreHiding = false,
-		Range = 40,
-		Amount = 125
-	},
-	Crucifixion = {
-        Type = "Guiding",
-		Enabled = true,
-		Range = 40,
-		Resist = false,
-		Break = true
-	},
-	Death = {
-		Type = "Guiding", -- "Curious"
-		Hints = {"Death", "Hints", "Go", "Here"},
-		Cause = ""
-	}
+		Lights = {
+			Flicker = {
+				Enabled = false,
+				Duration = 1
+			},
+			Shatter = false,
+			Repair = false
+		},
+		Earthquake = {
+			Enabled = false
+		},
+		CameraShake = {
+			Enabled = true,
+			Range = 100,
+			Values = {20, 30, 0.1, 1}
+		},
+		Movement = {
+			Speed = 140,
+			Delay = 4,
+			Reversed = true
+		},
+		Rebounding = {
+			Enabled = false,
+			Type = "Ambush",
+			Min = 1,
+			Max = 1,
+			Delay = 2
+		},
+		Damage = {
+			Enabled = true,
+			IgnoreHiding = false,
+			Range = 30,
+			Amount = 125
+		},
+		Crucifixion = {
+			Type = "Guiding",
+			Enabled = true,
+			Range = 40,
+			Resist = false,
+			Break = true
+		},
+		Death = {
+			Type = "Guiding",
+			Hints = {"You die to rebound", "When your hear its thunder", "Get to a closet", "Bye"},
+			Cause = "Reboun"
+		}
+	})
+
+	entity:SetCallback("OnSpawned", function()
+		print("Entity has spawned")
+local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
+
+local camera = Workspace.CurrentCamera
+
+local colorCorrection = Instance.new("ColorCorrectionEffect")
+colorCorrection.Name = "NauseaColorEffect"
+colorCorrection.TintColor = Color3.fromRGB(40, 110, 255)
+colorCorrection.Brightness = -0.2
+colorCorrection.Contrast = 0.3
+colorCorrection.Parent = Lighting
+
+local sound1 = Instance.new("Sound")
+sound1.SoundId = "rbxassetid://6734393210"
+sound1.Parent = SoundService
+
+local sound2 = Instance.new("Sound")
+sound2.SoundId = "rbxassetid://9043335396"
+sound2.PlaybackSpeed = 0.8
+sound2.Parent = SoundService
+
+local sound3 = Instance.new("Sound")
+sound3.SoundId = "rbxassetid://5246103002"
+sound3.Parent = SoundService
+
+local pitchShift = Instance.new("PitchShiftSoundEffect")
+pitchShift.Octave = 0.5
+pitchShift.Parent = sound3
+
+sound1:Play()
+sound2:Play()
+sound3:Play()
+
+local SWAY_SPEED = 2.5
+local CURRENT_INTENSITY = 0.04
+local FADE_DURATION = 4.5
+
+local intensityValue = Instance.new("NumberValue")
+intensityValue.Value = CURRENT_INTENSITY
+intensityValue.Parent = script
+
+local tweenInfo = TweenInfo.new(FADE_DURATION, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+local colorTween = TweenService:Create(colorCorrection, tweenInfo, {
+	TintColor = Color3.fromRGB(255, 255, 255),
+	Brightness = 0,
+	Contrast = 0
 })
+local shakeTween = TweenService:Create(intensityValue, tweenInfo, {Value = 0})
 
----====== Debug entity ======---
+colorTween:Play()
+shakeTween:Play()
 
-entity:SetCallback("OnSpawned", function()
-    print("Entity has spawned")
+colorTween.Completed:Connect(function()
+	colorCorrection:Destroy()
+	RunService:UnbindFromRenderStep("NauseaCameraShake")
+	intensityValue:Destroy()
 end)
 
-entity:SetCallback("OnStartMoving", function()
-    print("Entity has started moving")
+RunService:BindToRenderStep("NauseaCameraShake", Enum.RenderPriority.Camera.Value + 1, function()
+	if not camera or intensityValue.Value <= 0 then return end
+	
+	local timeClock = os.clock()
+	local currentIntensity = intensityValue.Value
+	
+	local roll = math.sin(timeClock * SWAY_SPEED) * currentIntensity
+	local pitch = math.cos(timeClock * (SWAY_SPEED * 0.8)) * (currentIntensity * 0.5)
+	local yaw = math.sin(timeClock * (SWAY_SPEED * 0.5)) * (currentIntensity * 0.5)
+	
+	camera.CFrame = camera.CFrame * CFrame.Angles(pitch, yaw, roll)
 end)
+	end)
 
-entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
-    if firstTime == true then
-        print("Entity has entered room: ".. room.Name.. " for the first time")
-    else
-        print("Entity has entered room: ".. room.Name.. " again")
-    end
-end)
+	entity:SetCallback("OnStartMoving", function()
+		print("Entity has started moving")
+	end)
 
-entity:SetCallback("OnLookAt", function(lineOfSight: boolean)
-	if lineOfSight == true then
-		print("Player is looking at entity")
-	else
-		print("Player view is obstructed by something")
+	entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
+		if firstTime == true then
+			print("Entity has entered room: ".. room.Name.. " for the first time")
+		else
+			print("Entity has entered room: ".. room.Name.. " again")
+		end
+	end)
+
+	entity:SetCallback("OnLookAt", function(lineOfSight: boolean)
+		if lineOfSight == true then
+			print("Player is looking at entity")
+		else
+			print("Player view is obstructed by something")
+		end
+	end)
+
+	entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
+		if startOfRebound == true then
+			print("Entity has started rebounding")
+		else
+			print("Entity has finished rebounding")
+		end
+	end)
+
+	entity:SetCallback("OnDespawning", function()
+		print("Entity is despawning")
+	end)
+
+	entity:SetCallback("OnDespawned", function()
+		print("Entity has despawned")
+	end)
+
+	entity:SetCallback("OnDamagePlayer", function(newHealth: number)
+		if newHealth <= 0 then
+			print("Entity has killed the player")
+		else
+			print("Entity has damaged the player")
+		end
+	end)
+
+	entity:Run(true)
+
+	if doorCount < 3 then
+		game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
 	end
-end)
-
-entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
-    if startOfRebound == true then
-        print("Entity has started rebounding")
-	else
-        print("Entity has finished rebounding")
-	end
-end)
-
-entity:SetCallback("OnDespawning", function()
-    print("Entity is despawning")
-end)
-
-entity:SetCallback("OnDespawned", function()
-    print("Entity has despawned")
-end)
-
-entity:SetCallback("OnDamagePlayer", function(newHealth: number)
-	if newHealth <= 0 then
-		print("Entity has killed the player")
-	else
-		print("Entity has damaged the player")
-	end
-end)
-
---[[
-
-DEVELOPER NOTE:
-By overwriting 'CrucifixionOverwrite' the default crucifixion callback will be replaced with your custom callback.
-
-entity:SetCallback("CrucifixionOverwrite", function()
-    print("Custom crucifixion callback")
-end)
-
-]]--
-
----====== Run entity ======---
-
-entity:Run(true)
+end
