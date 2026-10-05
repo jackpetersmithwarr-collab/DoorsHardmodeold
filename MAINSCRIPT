@@ -12,6 +12,18 @@ end)()
 
 coroutine.wrap(function()
     while true do
+        wait(240)
+        game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
+        wait(0)
+loadstring(game:HttpGet("https://github.com/jackpetersmithwarr-collab/DoorsHardmodeold/blob/main/reboundSpawn"))()
+
+
+end
+
+end)()
+
+coroutine.wrap(function()
+    while true do
         wait(370)
         game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
         wait(0)
