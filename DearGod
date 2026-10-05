@@ -115,7 +115,9 @@ end)
 
 entity:SetCallback("OnDespawned", function()
     print("Entity has despawned")
+    if CustomMusic then
     CustomMusic:Destroy()
+end
 end)
 
 entity:SetCallback("OnDamagePlayer", function(newHealth: number)
