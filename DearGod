@@ -12,7 +12,7 @@ local function getGitSoundId(GithubSoundPath: string, AssetName: string): Sound
     return Sound 
 end
 
-CustomMusic = getGitSoundId("https://githubusercontent.com", "thedeeriscoming")
+CustomMusic = getGitSoundId("https://raw.githubusercontent.com/jackpetersmithwarr-collab/sounds/main/1-16.%20Your%20Consenting%20Mind%20(Clean).mp3", "thedeeriscoming")
 CustomMusic.Parent = game.SoundService
 CustomMusic.Looped = true
 
