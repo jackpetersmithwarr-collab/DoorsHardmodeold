@@ -36,7 +36,19 @@ end)()
 
 coroutine.wrap(function()
     while true do
-        wait(170)
+        wait(1000)
+        game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
+        wait(0)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/jackpetersmithwarr-collab/DoorsHardmodeold/main/a60iscoming"))()
+
+
+end
+
+end)()
+
+coroutine.wrap(function()
+    while true do
+        wait(200)
         game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
         wait(0)
 loadstring(game:HttpGet("https://raw.githubusercontent.com/jackpetersmithwarr-collab/DoorsHardmodeold/main/Ceasewillfreezeu"))()
