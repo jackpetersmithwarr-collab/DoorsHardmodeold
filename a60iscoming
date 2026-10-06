@@ -144,31 +144,31 @@ end)
 entity:SetCallback("OnDespawning", function()
 	print("Entity is despawning")
 	SoundFolder:Destroy()
-       Sound1:Destroy()
-local Lighting = game:GetService("Lighting")
-local TweenService = game:GetService("TweenService")
+	
+	local Lighting = game:GetService("Lighting")
+	local TweenService = game:GetService("TweenService")
 
-local colorCorrection = Instance.new("ColorCorrectionEffect")
-colorCorrection.TintColor = Color3.fromRGB(80, 0, 20)
-colorCorrection.Brightness = -0.5
-colorCorrection.Parent = Lighting
+	local colorCorrection = Instance.new("ColorCorrectionEffect")
+	colorCorrection.TintColor = Color3.fromRGB(80, 0, 20)
+	colorCorrection.Brightness = -0.5
+	colorCorrection.Parent = Lighting
 
-task.wait(5)
+	task.wait(5)
 
-local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-local targetProperties = {
-	Brightness = 0,
-	Contrast = 0,
-	Saturation = 0,
-	TintColor = Color3.fromRGB(255, 255, 255)
-}
+	local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+	local targetProperties = {
+		Brightness = 0,
+		Contrast = 0,
+		Saturation = 0,
+		TintColor = Color3.fromRGB(255, 255, 255)
+	}
 
-local fadeTween = TweenService:Create(colorCorrection, tweenInfo, targetProperties)
-fadeTween:Play()
+	local fadeTween = TweenService:Create(colorCorrection, tweenInfo, targetProperties)
+	fadeTween:Play()
 
-fadeTween.Completed:Connect(function()
-	colorCorrection:Destroy()
-       end
+	fadeTween.Completed:Connect(function()
+		colorCorrection:Destroy()
+	end)
 end)
 
 entity:SetCallback("OnDespawned", function()
