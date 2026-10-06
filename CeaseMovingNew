@@ -1,116 +1,156 @@
-local spawner = loadstring(game:HttpGet("https://pastefy.app/uKozjSR2/raw"))()
-local dmg
+---====== Load spawner ======---
+local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Entity%20Spawner/V2/Source.lua"))()
+
+---====== Create entity ======---
 local entity = spawner.Create({
 	Entity = {
 		Name = "Cease",
-		Asset = "rbxassetid://16950076354",
-		HeightOffset = 3
+		Asset = "rbxassetid://118662290534983",
+		HeightOffset = 0
 	},
 	Lights = {
-		Flicker = {
-			Enabled = false,
-			Duration = 1
-		},
+		Flicker = { Enabled = false, Duration = 7 },
 		Shatter = false,
 		Repair = false
 	},
-	Earthquake = {
-		Enabled = false
-	},
+	Earthquake = { Enabled = false },
 	CameraShake = {
 		Enabled = true,
 		Range = 100,
-		Values = {5, 20, 0.1, 1} -- Magnitude, Roughness, FadeIn, FadeOut
+		Values = {3, 3, 2, 2}
 	},
 	Movement = {
-		Speed = 85,
-		Delay = 5,
+		Speed = 60,
+		Delay = 0,
 		Reversed = false
 	},
-	Rebounding = {
-		Enabled = false,
-		Type = "Ambush", -- "Blitz"
-		Min = 1,
-		Max = 1,
-		Delay = 1
-	},
-	Damage = {
-		Enabled = false,
-		Range = 40,
-		Amount = 75
-	},
+	Rebounding = { Enabled = false },
+	Damage = { Enabled = false },
 	Crucifixion = {
-		Enabled = false,
+		Enabled = true,
 		Range = 40,
 		Resist = false,
 		Break = true
 	},
 	Death = {
-		Type = "Guiding", -- "Curious"
-		Hints = {"You Died To Cease", "Never Move", " That's all. ", " ... "},
+		Type = "Guiding",
+		Hints = {
+			"You die to cease.",
+			"Dont move when lights turn blue."
+		},
 		Cause = "Cease"
 	}
 })
 
+---====== On Spawn ======---
+entity:SetCallback("OnSpawned", function()
+	print("Cease đã xuất hiện")
 
-local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
-local camara = game.Workspace.CurrentCamera
+	local TweenService = game:GetService("TweenService")
+	local Tweeninfo = TweenInfo.new(4, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+	local spawnColor = {Color = Color3.new(0, 0, 255)}
 
-
-local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(cf)
-	camara.CFrame = camara.CFrame * cf
-end)
-camShake:Start()
-camShake:Shake(CameraShaker.Presets.Earthquake)
-
-
-local redtweeninfo = TweenInfo.new(8)
-local redinfo = {Color = Color3.new(0, 0, 1)}
-
-
-for i,v in pairs(workspace.CurrentRooms:GetDescendants()) do
-	if v:IsA("Light") then
-		game.TweenService:Create(v,redtweeninfo,redinfo):Play()
-		if v.Parent.Name == "LightFixture" then
-			game.TweenService:Create(v.Parent,redtweeninfo,redinfo):Play()
+	for _, v in pairs(workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]:GetDescendants()) do
+		if v:IsA("Light") then
+			TweenService:Create(v, Tweeninfo, spawnColor):Play()
+		elseif v.Parent and v.Parent.Name == "LightFixture" then
+			TweenService:Create(v.Parent, Tweeninfo, spawnColor):Play()
 		end
 	end
-end
 
+	-- === BẮT ĐẦU KIỂM TRA DI CHUYỂN CHUẨN XÁC === --
+	local Players = game:GetService("Players")
+	local RunService = game:GetService("RunService")
 
-local Sielnce = Instance.new("Sound", workspace)
-Sielnce.SoundId = "rbxassetid://166047422"
-Sielnce:Play()
-Sielnce.Volume = 3
-game.Debris:AddItem(Sielnce, 2)
+	-- đảm bảo Cease chính xác có model
+	repeat task.wait() until entity.Model
+	local ceaseModel = entity.Model
 
+	local hitboxRange = 120
 
-entity:SetCallback("OnStartMoving", function()
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Blacklist
+	params.FilterDescendantsInstances = {ceaseModel}
 
+	local raycastLoop
+	raycastLoop = RunService.Heartbeat:Connect(function()
+		local origin = ceaseModel:GetPivot().Position
 
-local hitbox = 120
-dmg = game:GetService("RunService").Heartbeat:Connect(function()
-local origin = entity.Model:FindFirstChildWhichIsA("BasePart").Position
-local direction = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - origin).Unit
-local ray = Ray.new(origin, direction * hitbox)
+		for _, player in ipairs(Players:GetPlayers()) do
+			local chr = player.Character
+			if chr and chr:FindFirstChild("HumanoidRootPart") and chr:FindFirstChild("Humanoid") then
+				
+				local hrp = chr.HumanoidRootPart
+				local humanoid = chr.Humanoid
+				
+				-- Raycast
+				local direction = (hrp.Position - origin).Unit
+				local rayResult = workspace:Raycast(origin, direction * hitboxRange, params)
 
+				if rayResult and rayResult.Instance and rayResult.Instance:IsDescendantOf(chr) then
 
-local result = workspace:Raycast(ray.Origin, ray.Direction)
-     if result and result.Instance.Parent == game.Players.LocalPlayer.Character then
-           if game.Players.LocalPlayer.Character.Humanoid.MoveDirection ~= Vector3.new(0, 0, 0) then
-              entity.Config.Damage.Enabled = true
-          end
-     end
+					-- KIỂM TRA DI CHUYỂN CHUẨN
+					local isMovingByInput = humanoid.MoveDirection.Magnitude > 0.1
+					local isMovingByVelocity = hrp.AssemblyLinearVelocity.Magnitude > 2
+
+					-- Chỉ giết khi cả hai đều đúng
+					if isMovingByInput and isMovingByVelocity then
+						humanoid.Health = 0
+						print(player.Name .. " bị Cease giết vì di chuyển!")
+
+						-- đánh dấu nguyên nhân chết
+						local statsFolder = game.ReplicatedStorage:FindFirstChild("GameStats")
+						if statsFolder then
+							local playerStats = statsFolder:FindFirstChild("Player_" .. player.Name)
+							if playerStats and playerStats:FindFirstChild("Total") and playerStats.Total:FindFirstChild("DeathCause") then
+								playerStats.Total.DeathCause.Value = "Cease"
+							end
+						end
+					end
+				end
+			end
+		end
+	end)
+
+	---====== On Despawn ======---
+	entity:SetCallback("OnDespawned", function()
+		print("Cease đã biến mất")
+
+		if raycastLoop then
+			raycastLoop:Disconnect()
+		end
+
+		-- Hiệu ứng ánh sáng khi biến mất
+		local Tweeninfo2 = TweenInfo.new(4, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+		local despawnColor = {Color = Color3.new(1, 0, 1)}
+
+		for _, v in pairs(workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]:GetDescendants()) do
+			if v:IsA("Light") then
+				TweenService:Create(v, Tweeninfo2, despawnColor):Play()
+			elseif v.Parent and v.Parent.Name == "LightFixture" then
+				TweenService:Create(v.Parent, Tweeninfo2, despawnColor):Play()
+			end
+		end
+
+		-- Achievement
+		local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/Idk-lol2/a-60aa/refs/heads/main/fix%20bage.txt"))()
+		achievementGiver({
+			Title = "Stay Still",
+			Desc = "I dont want a single movement.",
+			Reason = "Encounter Cease",
+			Image = "rbxassetid://104367200417966"
+		})
+	end)
 end)
 
-
+---====== Damage Callback ======---
+entity:SetCallback("OnDamagePlayer", function(newHealth)
+	if newHealth == 0 then
+		print("Cease đã giết người chơi")
+	else
+		print("Cease gây sát thương")
+	end
 end)
 
-
-entity:SetCallback("OnDespawning", function()
-	entity.Model:Destroy()
-	dmg:Disconnect()
-end)
-
-
+---====== Run entity ======---
 entity:Run()
